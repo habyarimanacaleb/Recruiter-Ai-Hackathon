@@ -1,1 +1,18 @@
 @import 'tailwindcss';
+
+
+button,a{
+    cursor: pointer;
+}
+
+a:hover{
+    color:hsl(193, 100%, 50%)
+}
+
+.form-label::after{
+ content: "*";
+ color: rgb(15, 118, 244);
+ font-weight: 100;
+ padding-top: -5px;
+ padding-left: 5px;
+}
