@@ -12,7 +12,7 @@ function SocialMediaAuth() {
       </section>
       <section aria-disabled="true" className="mb-4">
         <Button
-          className=" flex justify-center items-center gap-4 w-full h-11 text-base text-blue-600 border border-gray-400 rounded-xl font-medium transition-all hover:shadow-lg active:scale-[0.85]"
+          className="flex justify-center items-center gap-4 w-full h-11 text-base text-blue-600 border border-gray-400 rounded-xl font-medium transition-all hover:shadow-lg active:scale-[0.85]"
           type="button"
         >
           <Image src={"/google.svg"} alt="Google icon" width={21} height={21} />
