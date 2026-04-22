@@ -15,10 +15,13 @@ import {
   ChevronRight,
   ChevronLeft,
   Zap,
+  Settings,
+  LogOut,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useSidebar } from "@/context/sidebar-context";
-import { UserProfile } from "./UserProfile";
+import { useAuth } from "@/context/AuthContext";
+
 
 const NAV_ITEMS = [
   { label: "Dashboard", href: "/dashboard", icon: LayoutDashboard, badge: null },
@@ -27,6 +30,11 @@ const NAV_ITEMS = [
   { label: "Emailed", href: "/emailed", icon: Mail, badge: "3" },
   { label: "Interviews", href: "/interviews", icon: CalendarDays, badge: null },
   { label: "Reports", href: "/reports", icon: BarChart3, badge: null },
+];
+
+const PROFILE_ACTIONS = [
+  { label: "Settings", icon: Settings, href: "/settings" },
+  { label: "Log Out", icon: LogOut, action: "logout" },
 ];
 
 const sidebarVariants: Variants = {
@@ -43,6 +51,13 @@ export function Sidebar() {
   const { isOpen, close } = useSidebar();
   const pathname = usePathname();
   const [isCollapsed, setIsCollapsed] = useState(false);
+  const { actions } = useAuth();
+
+  const handleClick = (action: string) => {
+  if (action === "logout") {
+    actions.logout();
+  }
+};
 
   return (
     <>
@@ -51,14 +66,14 @@ export function Sidebar() {
         animate={isCollapsed ? "collapsed" : "expanded"}
         variants={sidebarVariants}
         className={cn(
-          "fixed lg:sticky top-0 z-40 left-0 h-screen bg-white border-r border-[#f0f0f4] flex flex-col py-6 transition-transform duration-300",
+          "fixed lg:sticky top-0 z-40 left-0 h-screen bg-white border-r border-blue-200 flex flex-col py-6 transition-transform duration-300",
           isOpen ? "translate-x-0 shadow-2xl pt-18" : "-translate-x-full lg:translate-x-0"
         )}
       >
         {/* Desktop Collapse Toggle */}
         <button
           onClick={() => setIsCollapsed(!isCollapsed)}
-          className="hidden lg:flex absolute -right-3 top-80 w-6 h-6 bg-white border text-blue-600 border-gray-100 rounded-full items-center justify-center hover:text-indigo-600 shadow-sm z-50 transition-colors"
+          className="hidden lg:flex absolute -right-3 top-80 w-6 h-6 bg-white border text-blue-600 border-blue-200 rounded-full items-center justify-center hover:text-indigo-600 shadow-sm z-50 transition-colors"
         >
           {isCollapsed ? <ChevronRight size={20} /> : <ChevronLeft size={20} />}
         </button>
@@ -82,7 +97,7 @@ export function Sidebar() {
         {/* Nav Items */}
         <nav className="flex-1 px-3 overflow-y-auto overflow-x-hidden">
           {!isCollapsed && (
-            <p className="text-[10px] font-bold uppercase tracking-[0.9px] text-gray-300 px-3 mb-2.5">Main Menu</p>
+            <p className="text-[10px] font-bold uppercase tracking-[0.9px] text-gray-400 px-3 mb-2.5">Main Menu</p>
           )}
           <ul className="flex flex-col gap-1">
             {NAV_ITEMS.map(({ label, href, icon: Icon, badge }) => {
@@ -144,8 +159,68 @@ export function Sidebar() {
 
         <div className="h-px bg-gray-100 my-4 mx-4" />
 
-        {/* User Profile */}
-        <UserProfile name="Jane Doe" email="jane.doe@example.com" role="HR Manager" />
+        {/* User Profile Actions */}
+        <section className="px-3 mt-auto">
+  {!isCollapsed && (
+    <p className="text-[10px] font-bold uppercase tracking-[0.9px] text-gray-400 px-3 mb-2.5">
+      Account Settings
+    </p>
+  )}
+
+  <ul className="flex flex-col gap-1">
+    {PROFILE_ACTIONS.map(({ label, icon: Icon, href, action }) => {
+      const isActive = href && pathname.startsWith(href);
+
+      const content = (
+        <div
+          className={cn(
+            "flex items-center px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 group cursor-pointer",
+            isActive
+              ? "bg-indigo-50 text-indigo-600"
+              : "text-gray-500 hover:bg-gray-50 hover:text-gray-800"
+          )}
+        >
+          {/* Icon */}
+          <div
+            className={cn(
+              "flex items-center justify-center w-6 shrink-0",
+              isActive
+                ? "text-indigo-600"
+                : "text-gray-400 group-hover:text-gray-600"
+            )}
+          >
+            <Icon size={19} strokeWidth={isActive ? 2.3 : 1.8} />
+          </div>
+
+          {/* Label */}
+          <motion.div
+            variants={contentVariants}
+            className="ml-3 whitespace-nowrap overflow-hidden"
+          >
+            {label}
+          </motion.div>
+        </div>
+      );
+
+      return (
+        <li key={label}>
+          {href ? (
+            <Link href={href} onClick={close}>
+              {content}
+            </Link>
+          ) : (
+            <button
+              onClick={handleClick.bind(null, action!)}
+              className="w-full text-left"
+            >
+              {content}
+            </button>
+          )}
+        </li>
+      );
+    })}
+  </ul>
+</section>
       </motion.aside>
 
       {/* Mobile Backdrop Overlay */}

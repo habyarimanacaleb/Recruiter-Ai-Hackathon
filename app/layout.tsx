@@ -4,6 +4,7 @@ import { cn } from "@/lib/utils";
 import './globals.css'
 import { SidebarProvider } from '@/context/sidebar-context';
 import { AuthProvider } from "@/context/AuthContext";
+import { Toaster } from "@/components/ui/sonner"
 
 const dmSans = DM_Sans({
   subsets: ["latin"],
@@ -22,6 +23,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <AuthProvider>
           <SidebarProvider>
             {children}
+            <Toaster richColors position="top-right" />
           </SidebarProvider>
         </AuthProvider>
       </body>

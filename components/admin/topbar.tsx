@@ -61,7 +61,7 @@ if (!mounted) {
   animate="visible"
   className={cn(
     "flex items-center gap-2 md:gap-4 px-4 lg:px-7 h-17 min-h-17 sticky top-0 z-50 w-full",
-    "bg-white/90 backdrop-blur-md border-b border-[#f0f0f4]",
+    "bg-white/90 backdrop-blur-md border-b border-blue-200",
     "shadow-[0_1px_8px_rgba(0,0,0,0.04)]"
   )}
 >
@@ -83,7 +83,7 @@ if (!mounted) {
         // Updated padding: px-4 on mobile, lg:px-7 on desktop
         // removed pl-20 because we're putting the menu button inside the flex flow
         "flex items-center gap-2 md:gap-4 px-4 lg:px-7 h-17 min-h-17 sticky top-0 z-50",
-        "bg-white/90 backdrop-blur-md border-b border-[#f0f0f4]",
+        "bg-white/90 backdrop-blur-md border-b border-blue-200",
         "shadow-[0_1px_8px_rgba(0,0,0,0.04)]"
       )}
     >
