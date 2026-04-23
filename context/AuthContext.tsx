@@ -32,7 +32,8 @@ interface AuthContextType {
   user: any | null;
   session: any | null;
   isPending: boolean;
-  isAdmin: boolean; // Useful for UI conditional rendering
+  isAdmin: boolean;
+  isRecruiter: boolean;
   actions: AuthActions;
 }
 

@@ -107,7 +107,7 @@ if (!mounted) {
           >
             {title}
           </motion.h1>
-          {user && (
+          {user?.name && (
             <motion.p
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -201,9 +201,9 @@ if (!mounted) {
           {/* User Profile */}
           <Suspense fallback={<div className="w-32 h-9 bg-gray-300 rounded-xl animate-pulse" />}> 
           <UserProfile 
-            name={user.name || "Guest"}
-            email={user.email || " No email"}
-            role={user.role || "User"}
+            name={user?.name || "Guest"}
+            email={user?.email || " No email"}
+            role={user?.role || "User"}
           />
           </Suspense>
         </motion.div>
