@@ -38,7 +38,13 @@ export function Topbar() {
   const [searchValue, setSearchValue] = useState("");
   const [isMobileSearchOpen, setIsMobileSearchOpen] = useState(false);
 
-   const { user ,isPending} = useAuth();
+  //  const { user ,isPending} = useAuth();
+  const user={
+    name:'Pirlo',
+    email:'irakooze',
+    role:'admin'
+  }
+  const isPending=false
 
    const [mounted, setMounted] = useState(false);
 

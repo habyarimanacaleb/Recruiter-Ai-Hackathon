@@ -4,6 +4,7 @@ import JobDescriptionForm from "@/features/dashboard/JobDescriptionForm";
 import { BatchResumeUpload } from "@/features/dashboard/BatchResumeUpload";
 import { RankingSection } from "@/features/dashboard/RankingSection";
 import StatSection from "@/features/dashboard/StatSection";
+import { JobsTable } from "@/features/dashboard/jobTable";
 
 async function fetchCandidates() {
   // Simulate a database/API delay
@@ -38,9 +39,8 @@ export default async function Dashboard() {
           <h2 className="text-xl font-bold text-gray-900">Candidate Rankings</h2>
           <p className="text-sm text-gray-500">AI-powered evaluation based on job description fit.</p>
         </div>
-        
-        {/* We pass the server-fetched data to the Client Component */}
-        <RankingSection candidates={candidates} />
+    
+        <JobsTable/>
       </section>
 
     </div>
