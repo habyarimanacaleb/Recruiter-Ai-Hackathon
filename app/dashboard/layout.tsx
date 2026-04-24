@@ -20,22 +20,26 @@ export const metadata: Metadata = {
 };
 
 // app/dashboard/layout.tsx
-export default function DashboardLayout({ children }: { children: React.ReactNode }) {
+export default function DashboardLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   return (
     <div className="flex h-screen w-full overflow-hidden bg-[#f8f9fa]">
-      <Sidebar />
+      <Suspense
+        fallback={<div className="w-64 h-full bg-white animate-pulse" />}
+      >
+        <Sidebar />
+      </Suspense>
       <main className="flex flex-col flex-1 min-w-0 h-full">
         <Suspense fallback={<div className="h-17 w-full border-b bg-white" />}>
-           <Topbar />
+          <Topbar />
         </Suspense>
         <div className="flex-1 overflow-y-auto overflow-x-hidden">
-          <div className="p-4 lg:p-8 max-w-400 mx-auto">
-            {children}
-          </div>
+          <div className="p-4 lg:p-8 max-w-400 mx-auto">{children}</div>
         </div>
-
       </main>
     </div>
   );
 }
-

@@ -1,5 +1,6 @@
 "use client";
-import React, { useState } from "react";
+
+import  { useState } from "react";
 import { CandidateRankingTable } from "@/features/dashboard/CandidateRankingTable";
 import { CandidateDetailsModal } from "@/features/dashboard/modals/CandidateDetailsModal";
 import { SendEmailModal } from "@/features/dashboard/modals/SendEmailModal";
@@ -34,6 +35,7 @@ export function RankingSection({ candidates }: { candidates: Candidate[] }) {
   return (
     <section className="space-y-6 animate-in fade-in duration-500">
       <CandidateRankingTable 
+       candidates={candidates}
         onView={handleOpenDetails}
         onEmail={handleOpenEmail}
       />

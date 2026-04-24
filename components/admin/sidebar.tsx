@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { motion, AnimatePresence, Variants } from "framer-motion";
@@ -17,6 +17,8 @@ import {
   Zap,
   Settings,
   LogOut,
+  UserPlus,
+  UserMinus,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useSidebar } from "@/context/sidebar-context";
@@ -24,10 +26,12 @@ import { useAuth } from "@/context/AuthContext";
 
 const NAV_ITEMS = [
   { label: "Dashboard", href: "/dashboard", icon: LayoutDashboard, badge: null },
-  { label: "All Candidates", href: "/dashboard/candidates", icon: Users, badge: "24" },
-  { label: "Shortlisted", href: "/dashboard/shortlisted", icon: Star, badge: "4" },
-  { label: "Emailed", href: "/dashboard/emailed", icon: Mail, badge: "3" },
-  { label: "Interviews", href: "/dashboard/interviews", icon: CalendarDays, badge: null },
+  { label: "All Candidates", href: "/dashboard/candidates", icon: Users, badge: null },
+  { label: "Screened", href: "/dashboard/screened", icon: UserPlus, badge: null },
+  { label: "Shortlisted", href: "/dashboard/shortlisted", icon: Star, badge: null },
+  { label: "Rejected", href: "/dashboard/rejected", icon: UserMinus, badge: null },
+  { label: "Emailed", href: "/dashboard/emailed", icon: Mail, badge: null },
+  { label: "Interviews", href: "/dashboard/interviewed", icon: CalendarDays, badge: null },
   { label: "Reports", href: "/dashboard/reports", icon: BarChart3, badge: null },
 ];
 
