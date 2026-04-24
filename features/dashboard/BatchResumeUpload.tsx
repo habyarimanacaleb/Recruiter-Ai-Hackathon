@@ -26,13 +26,13 @@ export function BatchResumeUpload() {
 
       <div {...getRootProps()} className={cn(
         "border-2 border-dashed rounded-xl p-8 text-center cursor-pointer transition-all",
-        isDragActive ? "border-primary bg-primary/5" : "border-muted-foreground/25",
+        isDragActive ? "border-blue-500 bg-primary/5" : "border-blue-300 bg-transparent hover:border-indigo-600 tracking-normal transition-all",
         isProcessing && "opacity-50 pointer-events-none"
       )}>
         <input {...getInputProps()} />
-        <UploadCloud className="mx-auto h-10 w-10 text-muted-foreground mb-2" />
-        <p className="text-sm font-medium">Add Resumes</p>
-        <p className="text-xs text-muted-foreground italic">PDF/DOCX up to 50 files</p>
+        <UploadCloud className="mx-auto h-16 w-16 text-blue-600 mb-2 hover:scale-110" strokeWidth={2} />
+        <p className="text-md text-gray-600 font-medium">Upload Resumes or use Drop Down</p>
+        <p className="text-xs text-gray-500 italic">PDF/DOCX/CSVs/ZIP files up to 50 files</p>
       </div>
 
       {files.length > 0 && (

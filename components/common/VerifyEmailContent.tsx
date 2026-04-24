@@ -1,19 +1,25 @@
 "use client";
 
-import React, { useState, Suspense } from "react";
+import React, { useState } from "react";
 import { authClient } from "@/lib/auth-client";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Card, CardHeader, CardTitle, CardContent, CardDescription } from "@/components/ui/card";
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardContent,
+  CardDescription,
+} from "@/components/ui/card";
 import { Loader2, MailCheck } from "lucide-react";
+import { toast } from "sonner";
 
-
-export default function VerifyEmailContent() {
+function VerifyEmailContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const email = searchParams.get("email") || "";
-  
+
   const [code, setCode] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -22,27 +28,30 @@ export default function VerifyEmailContent() {
     setLoading(true);
 
     // Use emailOtp plugin method
-    await authClient.emailOtp.verifyEmail({
-      email: email,
-      otp: code,
-    }, {
-      onSuccess: () => {
-        alert("Account verified successfully!");
-        router.push("/auth/login");
+    await authClient.emailOtp.verifyEmail(
+      {
+        email: email,
+        otp: code,
       },
-      onError: (ctx) => {
-        setLoading(false);
-        alert(ctx.error.message || "Invalid code");
-      }
-    });
+      {
+        onSuccess: () => {
+          toast.success("Account verified successfully!");
+          router.push("/auth/login");
+        },
+        onError: (ctx) => {
+          setLoading(false);
+          toast.error(ctx.error.message || "Invalid code");
+        },
+      },
+    );
   };
 
   const handleResend = async () => {
     await authClient.emailOtp.sendVerificationOtp({
       email: email,
-      type: "email-verification"
+      type: "email-verification",
     });
-    alert("New code sent!");
+    toast.info("New code sent!");
   };
 
   return (
@@ -55,9 +64,12 @@ export default function VerifyEmailContent() {
                 <MailCheck className="w-10 h-10 text-blue-600" />
               </div>
             </div>
-            <CardTitle className="text-2xl font-bold">Verify your email</CardTitle>
+            <CardTitle className="text-2xl font-bold">
+              Verify your email
+            </CardTitle>
             <CardDescription>
-              We've sent a code to <span className="font-semibold text-gray-900">{email}</span>
+              We've sent a code to{" "}
+              <span className="font-semibold text-gray-900">{email}</span>
             </CardDescription>
           </CardHeader>
 
@@ -74,14 +86,22 @@ export default function VerifyEmailContent() {
               />
             </div>
 
-            <Button 
+            <Button
+              type="submit"
               className="w-full h-11 bg-blue-600 hover:bg-blue-500 rounded-full"
               disabled={loading || code.length < 1}
             >
-              {loading ? <Loader2 className="animate-spin" /> : "Verify Account"}
+              {loading ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Verifying...
+                </>
+              ) : (
+                "Verify Account"
+              )}
             </Button>
 
-            <button 
+            <button
               type="button"
               className="text-sm text-blue-600 hover:underline font-medium"
               onClick={handleResend}
@@ -94,3 +114,5 @@ export default function VerifyEmailContent() {
     </div>
   );
 }
+
+export default VerifyEmailContent;

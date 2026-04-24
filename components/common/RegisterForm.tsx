@@ -4,7 +4,7 @@ import React, { useState } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { useRouter } from "next/navigation"; // Added for redirection
+import { useRouter } from "next/navigation";
 import {
   Card,
   CardHeader,
@@ -20,7 +20,7 @@ import { toast } from "sonner";
 
 function RegisterForm() {
   const { actions } = useAuth();
-  const router = useRouter(); // Initialize router
+  const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
