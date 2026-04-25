@@ -1,8 +1,9 @@
 import { TalentState } from '@/types/talent';
 import { create } from 'zustand';
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3004';
+const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
+type TalentStatus = "Pending" | "Screened" | "Shortlisted" | "Emailed" | "Rejected";
 
 export const useTalentStore = create<TalentState>((set, get) => ({
   talents: [],
@@ -42,6 +43,47 @@ export const useTalentStore = create<TalentState>((set, get) => ({
     }
   },
 
+  // ── GET BY STATUS ─────────────────────────────────────────────────────
+  fetchTalentsByStatus: async (status: TalentStatus) => {
+    set({ isLoading: true, error: null });
+    try {
+      const res = await fetch(`${API_URL}/api/talent/getTalentByStatus?status=${status}`);
+      if (!res.ok) throw new Error('Failed to fetch talents by status');
+
+      const data = await res.json();
+      set({ talents: data.talents, isLoading: false });
+    } catch (err) {
+      set({ isLoading: false, error: err instanceof Error ? err.message : 'Something went wrong' });
+    }
+  },
+
+  // ── UPDATE STATUS ─────────────────────────────────────────────────────
+  updateTalentStatus: async (talentId: string, status: TalentStatus) => {
+    set({ error: null });
+    try {
+      const res = await fetch(`${API_URL}/api/talent/updateTalentStatus`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ talentId, status }),
+      });
+      if (!res.ok) throw new Error('Failed to update talent status');
+
+      const data = await res.json();
+
+      set((state) => ({
+        talents: state.talents.map((t) =>
+          t._id === talentId ? data.talent : t
+        ),
+        selectedTalent:
+          state.selectedTalent?._id === talentId
+            ? data.talent
+            : state.selectedTalent,
+      }));
+    } catch (err) {
+      set({ error: err instanceof Error ? err.message : 'Something went wrong' });
+      throw err;
+    }
+  },
 
   scoreOneTalent: async (talentId, jobDescriptionId) => {
     set({ isScoring: true, error: null });
@@ -60,7 +102,6 @@ export const useTalentStore = create<TalentState>((set, get) => ({
         talents: state.talents.map((t) =>
           t._id === talentId ? data.updatedScore : t
         ),
-
         selectedTalent:
           state.selectedTalent?._id === talentId
             ? data.updatedScore
@@ -82,7 +123,6 @@ export const useTalentStore = create<TalentState>((set, get) => ({
       });
       if (!res.ok) throw new Error('Failed to score all talents');
 
-      // After scoring all, re-fetch the full ranked list
       set({ isScoring: false });
       await get().fetchTalents();
     } catch (err) {
@@ -124,7 +164,6 @@ export const useTalentStore = create<TalentState>((set, get) => ({
       });
       if (!res.ok) throw new Error('Failed to delete talents');
 
-      // Remove all talents linked to this job from local state
       set((state) => ({
         talents: state.talents.filter((t) => t.jobDescription !== jobDescriptionId),
         selectedTalent:

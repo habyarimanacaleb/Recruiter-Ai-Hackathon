@@ -18,7 +18,7 @@ interface ResumeState {
   uploadResumes: () => Promise<void>;
 }
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3004';
+const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
 function mapProfileToCandidate(profile: any, index: number) {
   return {

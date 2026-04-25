@@ -3,19 +3,18 @@
 import { Suspense, useEffect, useState } from "react";
 import { motion, Variants } from "framer-motion";
 import {
-  Bell,
-  Search,
-  Plus,
-  CheckCircle2,
-  X,
-  Menu, 
+  Menu,
+  Sparkles,
+  Zap,
+  TrendingUp,
+  Clock,
+  Users,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useSidebar } from "@/context/sidebar-context";
 import { UserProfile } from "./UserProfile";
 import { useAuth } from "@/context/AuthContext";
-import { useSearchParams } from "next/navigation";
-
+import { useTalentStore } from "@/store/useTalentStore";
 
 const topbarVariants: Variants = {
   hidden: { y: -10, opacity: 0 },
@@ -31,50 +30,142 @@ const rightItemVariants: Variants = {
   visible: { opacity: 1, x: 0, transition: { duration: 0.3 } },
 };
 
-export function Topbar() {
-  const { toggle,isOpen } = useSidebar();
+// ── Live clock ──────────────────────────────────────────────────────────────
+function LiveClock() {
+  const [time, setTime] = useState("");
+  const [date, setDate] = useState("");
 
-  const [searchFocused, setSearchFocused] = useState(false);
-  const [searchValue, setSearchValue] = useState("");
-  const [isMobileSearchOpen, setIsMobileSearchOpen] = useState(false);
+  useEffect(() => {
+    const tick = () => {
+      const now = new Date();
+      setTime(now.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }));
+      setDate(now.toLocaleDateString([], { weekday: "short", month: "short", day: "numeric" }));
+    };
+    tick();
+    const id = setInterval(tick, 1000);
+    return () => clearInterval(id);
+  }, []);
 
-  //  const { user ,isPending} = useAuth();
-  const user={
-    name:'Pirlo',
-    email:'irakooze',
-    role:'admin'
-  }
-  const isPending=false
-
-   const [mounted, setMounted] = useState(false);
-
-useEffect(() => {
-  setMounted(true);
-}, []);
-
-// Don't render interactive parts until the client is ready
-if (!mounted) {
-  return <div className="h-17 w-full border-b bg-white" />; // Plain placeholder
+  return (
+    <div className="hidden md:flex flex-col items-end leading-tight">
+      <span className="text-[13px] font-semibold text-gray-700 tabular-nums">{time}</span>
+      <span className="text-[10.5px] text-gray-400 font-medium">{date}</span>
+    </div>
+  );
 }
 
-  const title =  "Dashboard";
+// ── Pulse stat pill ─────────────────────────────────────────────────────────
+function StatPill({
+  icon: Icon,
+  label,
+  value,
+  color,
+}: {
+  icon: React.ElementType;
+  label: string;
+  value: string;
+  color: string;
+}) {
+  return (
+    <div
+      className={cn(
+        "hidden lg:flex items-center gap-2 px-3 py-1.5 rounded-xl border text-[12px] font-semibold transition-all cursor-default select-none",
+        color
+      )}
+    >
+      <Icon size={12} strokeWidth={2.5} />
+      <span className="hidden xl:inline text-[11px] font-medium opacity-70">{label}</span>
+      <span>{value}</span>
+    </div>
+  );
+}
+
+// ── AI Score indicator ────────────────────────────────────────────────────────
+function AiScoreWidget() {
+  const { isScoring } = useTalentStore();
+
+  return (
+    <motion.div
+      animate={{ opacity: 1 }}
+      className={cn(
+        "hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-xl border text-[12px] font-semibold select-none transition-all duration-300",
+        isScoring
+          ? "bg-violet-50 border-violet-200 text-violet-600"
+          : "bg-indigo-50 border-indigo-100 text-indigo-600"
+      )}
+    >
+      <motion.div
+        animate={isScoring ? { rotate: 360 } : { rotate: 0 }}
+        transition={isScoring ? { repeat: Infinity, duration: 1.4, ease: "linear" } : {}}
+      >
+        <Sparkles size={12} strokeWidth={2.5} />
+      </motion.div>
+      <span>{isScoring ? "Scoring…" : "AI Ready"}</span>
+    </motion.div>
+  );
+}
+
+// ── Activity dot ─────────────────────────────────────────────────────────────
+function ActivityIndicator() {
+  return (
+    <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-xl bg-emerald-50 border border-emerald-100">
+      <span className="relative flex h-2 w-2">
+        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-60" />
+        <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
+      </span>
+      <span className="text-[11.5px] font-bold text-emerald-600">Live</span>
+    </div>
+  );
+}
+
+// ── Main Topbar ───────────────────────────────────────────────────────────────
+export function Topbar() {
+  const { toggle, isOpen } = useSidebar();
+
+  const { user, isPending } = useAuth();
+  // ── Real data from store ──────────────────────────────────────────────
+  const { talents, fetchTalents, isLoading } = useTalentStore();
+
+  const totalCandidates = talents.length;
+
+  // Candidates added in the last 7 days
+  const oneWeekAgo = Date.now() - 7 * 24 * 60 * 60 * 1000;
+  const thisWeekCount = talents.filter((t) => {
+    const created = t.createdAt ? new Date(t.createdAt).getTime() : 0;
+    return created >= oneWeekAgo;
+  }).length;
+
+  // % of candidates that have been screened (status !== "Pending")
+  const screenedCount = talents.filter((t) => t.status !== "Pending").length;
+  const screenedPct = totalCandidates > 0
+    ? Math.round((screenedCount / totalCandidates) * 100)
+    : 0;
+
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => {
+    setMounted(true);
+    fetchTalents();
+  }, [fetchTalents]);
+
+  if (!mounted) return <div className="h-17 w-full border-b bg-white" />;
+
+  const title = "Dashboard";
 
   if (isPending) {
     return (
-     <motion.header
-  variants={topbarVariants}
-  initial="hidden"
-  animate="visible"
-  className={cn(
-    "flex items-center gap-2 md:gap-4 px-4 lg:px-7 h-17 min-h-17 sticky top-0 z-50 w-full",
-    "bg-white/90 backdrop-blur-md border-b border-blue-200",
-    "shadow-[0_1px_8px_rgba(0,0,0,0.04)]"
-  )}
->
-
+      <motion.header
+        variants={topbarVariants}
+        initial="hidden"
+        animate="visible"
+        className={cn(
+          "flex items-center gap-2 md:gap-4 px-4 lg:px-7 h-17 min-h-17 sticky top-0 z-50 w-full",
+          "bg-white/90 backdrop-blur-md border-b border-blue-200",
+          "shadow-[0_1px_8px_rgba(0,0,0,0.04)]"
+        )}
+      >
         <div className="flex items-center gap-2">
-          <div className="w-8 h-8 bg-gray-300 rounded-full animate-pulse" />
-          <div className="w-24 h-4 bg-gray-300 rounded animate-pulse" />
+          <div className="w-8 h-8 bg-gray-100 rounded-full animate-pulse" />
+          <div className="w-24 h-4 bg-gray-100 rounded animate-pulse" />
         </div>
       </motion.header>
     );
@@ -86,80 +177,41 @@ if (!mounted) {
       initial="hidden"
       animate="visible"
       className={cn(
-        // Updated padding: px-4 on mobile, lg:px-7 on desktop
-        // removed pl-20 because we're putting the menu button inside the flex flow
-        "flex items-center gap-2 md:gap-4 px-4 lg:px-7 h-17 min-h-17 sticky top-0 z-50",
-        "bg-white/90 backdrop-blur-md border-b border-blue-200",
+        "flex items-center gap-2 md:gap-4 px-4 lg:px-7 h-17 min-h-17 sticky top-0 z-50 w-full",
+        "bg-white/90 backdrop-blur-md border-b border-slate-100",
         "shadow-[0_1px_8px_rgba(0,0,0,0.04)]"
       )}
     >
       {/* ── Mobile Sidebar Toggle ── */}
-      {!isMobileSearchOpen && (
-        <button
-          onClick={toggle}
-          className="lg:hidden p-2 -ml-1 text-gray-500 hover:bg-gray-50 rounded-xl transition-colors shrink-0"
-        >
-          <Menu size={22} strokeWidth={2} />
-        </button>
-      )}
+      <button
+        onClick={toggle}
+        className="lg:hidden p-2 -ml-1 text-gray-500 hover:bg-gray-50 rounded-xl transition-colors shrink-0"
+      >
+        <Menu size={22} strokeWidth={2} />
+      </button>
 
-      {/* ── Page Title ── */}
-      {!isMobileSearchOpen && (
-        <div className="flex flex-col min-w-0 shrink-0">
-          <motion.h1
-            initial={{ opacity: 0, y: -4 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="text-[17px] lg:text-[20px] font-bold tracking-tight text-gray-900 leading-tight truncate"
+      {/* ── Page Title + Greeting ── */}
+      <div className="flex flex-col min-w-0 shrink-0">
+        <motion.h1
+          initial={{ opacity: 0, y: -4 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="text-[17px] lg:text-[20px] font-bold tracking-tight text-gray-900 leading-tight truncate"
+        >
+          {title}
+        </motion.h1>
+        {user?.name && (
+          <motion.p
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="hidden md:block text-[11.5px] text-gray-400 font-medium mt-0.5 truncate"
           >
-            {title}
-          </motion.h1>
-          {user && (
-            <motion.p
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              className="hidden md:block text-[11.5px] text-gray-400 font-medium mt-0.5 truncate"
-            >
-              {`Welcome back, ${user.name.slice(0, 8)}`}
-            </motion.p>
-          )}
-        </div>
-      )}
-
-      {/* ── Search Bar (Adaptive) ── */}
-      <div className={cn(
-        "flex-1 items-center justify-center",
-        isMobileSearchOpen ? "flex fixed inset-0 bg-white px-4 z-60 h-17" : "hidden md:flex"
-      )}>
-        <motion.div
-          animate={{
-            boxShadow: searchFocused
-              ? "0 0 0 3px rgba(99,102,241,0.12), 0 1px 4px rgba(0,0,0,0.06)"
-              : "0 1px 4px rgba(0,0,0,0.04)",
-          }}
-          className={cn(
-            "w-full max-w-110 flex items-center gap-2.5 h-10 px-3.5 rounded-xl border transition-all",
-            searchFocused ? "bg-white border-indigo-200" : "bg-[#f7f8fa] border-transparent"
-          )}
-        >
-          <Search size={14} className={searchFocused ? "text-indigo-500" : "text-gray-400"} />
-          <input
-            type="text"
-            value={searchValue}
-            onChange={(e) => setSearchValue(e.target.value)}
-            placeholder="Search candidates..."
-            onFocus={() => setSearchFocused(true)}
-            onBlur={() => setSearchFocused(false)}
-            className="flex-1 bg-transparent text-[13.5px] outline-none font-medium text-gray-700"
-          />
-          {isMobileSearchOpen ? (
-            <button onClick={() => setIsMobileSearchOpen(false)}>
-              <X size={16} className="text-gray-400 hover:text-gray-600" />
-            </button>
-          ) : (
-            <kbd className="hidden lg:inline-flex text-[10.5px] font-semibold text-gray-300 bg-gray-100 rounded px-1.5 py-0.5">⌘K</kbd>
-          )}
-        </motion.div>
+            {`Welcome back, ${user.name.slice(0, 8)}`}
+          </motion.p>
+        )}
       </div>
+
+      {/* ── Spacer ── */}
+      <div className="flex-1" />
 
       {/* ── Right Actions ── */}
       {!isOpen && (
@@ -167,51 +219,67 @@ if (!mounted) {
           variants={rightItemsVariants}
           initial="hidden"
           animate="visible"
-          className="flex items-center gap-1.5 md:gap-2 shrink-0 ml-auto"
+          className="flex items-center gap-2 shrink-0"
         >
-          {/* Mobile Search Toggle */}
-          <button 
-            onClick={() => setIsMobileSearchOpen(true)}
-            className="md:hidden w-9 h-9 flex items-center justify-center text-gray-500 hover:bg-gray-50 rounded-xl transition-colors"
-          >
-            <Search size={18} />
-          </button>
-
-          {/* New Screening */}
+          {/* Live indicator */}
           <motion.div variants={rightItemVariants}>
-            <motion.button
-              whileTap={{ scale: 0.97 }}
-              className="flex items-center gap-1.5 px-3 lg:px-4 py-2 rounded-xl bg-indigo-600 text-white text-[13px] font-semibold shadow-md shadow-indigo-200"
-            >
-              <Plus size={14} strokeWidth={2.6} />
-              <span className="hidden sm:inline">New Screening</span>
-            </motion.button>
+            <ActivityIndicator />
           </motion.div>
 
-          {/* AI Badge (Desktop Only) */}
-          <motion.div variants={rightItemVariants} className="hidden xl:block">
-            <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-600">
-              <CheckCircle2 size={12} strokeWidth={2.5} />
-              <span className="text-[11.5px] font-bold">AI Active</span>
+          {/* Quick stats pills */}
+          <motion.div variants={rightItemVariants}>
+            <StatPill
+              icon={Users}
+              label="Candidates"
+              value={isLoading ? "…" : String(totalCandidates)}
+              color="text-blue-600 bg-blue-50 border-blue-100"
+            />
+          </motion.div>
+
+          <motion.div variants={rightItemVariants}>
+            <StatPill
+              icon={TrendingUp}
+              label="This week"
+              value={isLoading ? "…" : `+${thisWeekCount}`}
+              color="text-violet-600 bg-violet-50 border-violet-100"
+            />
+          </motion.div>
+
+          <motion.div variants={rightItemVariants}>
+            <StatPill
+              icon={Zap}
+              label="Screened"
+              value={isLoading ? "…" : `${screenedPct}%`}
+              color="text-amber-600 bg-amber-50 border-amber-100"
+            />
+          </motion.div>
+
+          {/* Divider */}
+          <div className="hidden sm:block w-px h-6 bg-gray-100 mx-1" />
+
+          {/* Live clock */}
+          <motion.div variants={rightItemVariants}>
+            <div className="hidden md:flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-gray-100 bg-gray-50">
+              <Clock size={12} className="text-gray-400" />
+              <LiveClock />
             </div>
           </motion.div>
 
-          {/* Notifications */}
-          <motion.div variants={rightItemVariants} className="hidden sm:block">
-            <button className="relative w-9 h-9 rounded-xl border border-gray-100 flex items-center justify-center text-gray-500 hover:bg-gray-50 transition-colors">
-              <Bell size={17} />
-              <span className="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full border-2 border-white" />
-            </button>
+          {/* AI scoring status */}
+          <motion.div variants={rightItemVariants}>
+            <AiScoreWidget />
           </motion.div>
 
           {/* User Profile */}
-          <Suspense fallback={<div className="w-32 h-9 bg-gray-300 rounded-xl animate-pulse" />}> 
-          <UserProfile 
-            name={user.name || "Guest"}
-            email={user.email || " No email"}
-            role={user.role || "User"}
-          />
-          </Suspense>
+          <motion.div variants={rightItemVariants}>
+            <Suspense fallback={<div className="w-32 h-9 bg-gray-100 rounded-xl animate-pulse" />}>
+              <UserProfile
+                name={user?.name || "Guest"}
+                email={user?.email || "No email"}
+                role={user?.role || "User"}
+              />
+            </Suspense>
+          </motion.div>
         </motion.div>
       )}
     </motion.header>

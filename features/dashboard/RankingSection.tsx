@@ -1,54 +1,55 @@
 "use client";
-import React, { useState } from "react";
+
+import { useState } from "react";
 import { CandidateRankingTable } from "@/features/dashboard/CandidateRankingTable";
 import { CandidateDetailsModal } from "@/features/dashboard/modals/CandidateDetailsModal";
 import { SendEmailModal } from "@/features/dashboard/modals/SendEmailModal";
-import { Candidate } from "@/types";
+import { Talent, TalentStatus } from "@/types/talent";
 
 type ModalType = "DETAILS" | "EMAIL" | null;
 
-export function RankingSection({ candidates }: { candidates: Candidate[] }) {
-  const [selectedCandidateId, setSelectedCandidateId] = useState<string | null>(null);
+interface RankingSectionProps {
+  /** Pass a TalentStatus to pre-filter the table to that status.
+   *  Pass null (or omit) to show all candidates. */
+  status?: TalentStatus | null;
+}
+
+export function RankingSection({ status = null }: RankingSectionProps) {
+  const [selectedTalent, setSelectedTalent] = useState<Talent | null>(null);
   const [activeModal, setActiveModal] = useState<ModalType>(null);
 
-  const activeCandidate = candidates.find(c => c.id === selectedCandidateId) || null;
-
-  const handleOpenDetails = (candidate: Candidate) => {
-    setSelectedCandidateId(candidate.id);
+  const handleOpenDetails = (talent: Talent) => {
+    setSelectedTalent(talent);
     setActiveModal("DETAILS");
   };
 
-  const handleOpenEmail = (candidate: Candidate) => {
-    setSelectedCandidateId(candidate.id);
+  const handleOpenEmail = (talent: Talent) => {
+    setSelectedTalent(talent);
     setActiveModal("EMAIL");
   };
 
   const handleCloseModals = () => {
     setActiveModal(null);
-    // Timeout matches typical Tailwind/Framer transition durations
-    setTimeout(() => setSelectedCandidateId(null), 200); 
+    setTimeout(() => setSelectedTalent(null), 200);
   };
-
- 
 
   return (
     <section className="space-y-6 animate-in fade-in duration-500">
-      <CandidateRankingTable 
+      <CandidateRankingTable
+        initialStatus={status}
         onView={handleOpenDetails}
         onEmail={handleOpenEmail}
       />
 
-      {/* Logic for shared modals */}
-      {activeCandidate && (
+      {selectedTalent && (
         <>
-          <CandidateDetailsModal 
-            candidate={activeCandidate}
+          <CandidateDetailsModal
+            candidate={selectedTalent}
             isOpen={activeModal === "DETAILS"}
             onClose={handleCloseModals}
           />
-
-          <SendEmailModal 
-            candidate={activeCandidate}
+          <SendEmailModal
+            candidate={selectedTalent}
             isOpen={activeModal === "EMAIL"}
             onClose={handleCloseModals}
           />
