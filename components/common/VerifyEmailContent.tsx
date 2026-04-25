@@ -23,40 +23,40 @@ function VerifyEmailContent() {
   const [code, setCode] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const handleVerify = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
+  // const handleVerify = async (e: React.FormEvent) => {
+  //   e.preventDefault();
+  //   setLoading(true);
 
-    // Use emailOtp plugin method
-    await authClient.emailOtp.verifyEmail(
-      {
-        email: email,
-        otp: code,
-      },
-      {
-        onSuccess: () => {
-          toast.success("Account verified successfully!");
-          router.push("/auth/login");
-        },
-        onError: (ctx) => {
-          setLoading(false);
-          toast.error(ctx.error.message || "Invalid code");
-        },
-      },
-    );
-  };
+  //   // Use emailOtp plugin method
+  //   await authClient.emailOtp.verifyEmail(
+  //     {
+  //       email: email,
+  //       otp: code,
+  //     },
+  //     {
+  //       onSuccess: () => {
+  //         toast.success("Account verified successfully!");
+  //         router.push("/auth/login");
+  //       },
+  //       onError: (ctx) => {
+  //         setLoading(false);
+  //         toast.error(ctx.error.message || "Invalid code");
+  //       },
+  //     },
+  //   );
+  // };
 
-  const handleResend = async () => {
-    await authClient.emailOtp.sendVerificationOtp({
-      email: email,
-      type: "email-verification",
-    });
-    toast.info("New code sent!");
-  };
+  // const handleResend = async () => {
+  //   await authClient.emailOtp.sendVerificationOtp({
+  //     email: email,
+  //     type: "email-verification",
+  //   });
+  //   toast.info("New code sent!");
+  // };
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-50/50 p-4">
-      <form onSubmit={handleVerify} className="w-full max-w-md">
+      <form  className="w-full max-w-md">
         <Card className="border-border/50 shadow-2xl">
           <CardHeader className="space-y-1 text-center">
             <div className="flex justify-center mb-4">
@@ -104,7 +104,7 @@ function VerifyEmailContent() {
             <button
               type="button"
               className="text-sm text-blue-600 hover:underline font-medium"
-              onClick={handleResend}
+              // onClick={handleResend}
             >
               Didn't get a code? Resend
             </button>

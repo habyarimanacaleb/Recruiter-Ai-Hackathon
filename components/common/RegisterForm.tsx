@@ -46,7 +46,7 @@ function RegisterForm() {
           setLoading(false);
           // Refresh and redirect after successful registration
           router.refresh();
-          router.push(`/auth/verify-email?email=${encodeURIComponent(email)}`);
+          router.push("/dashboard");
         },
       }
     );
