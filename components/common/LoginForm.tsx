@@ -38,15 +38,10 @@ function LoginFormUI() {
         onRequest: () => setLoading(true),
         onError: (ctx) => {
           setLoading(false);
-          if (ctx.error.status === 403) {
-            toast.warning("Please verify your email address before logging in.");
-          } else {
             toast.error(ctx.error.message || "Login failed");
-          }
         },
         onSuccess: async () => {
           setLoading(false);
-          // 1. Refresh the router to update server components
           router.refresh();
           // 2. Redirect to dashboard
           router.push("/dashboard");
