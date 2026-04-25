@@ -25,11 +25,11 @@ import { useAuth } from "@/context/AuthContext";
 
 const NAV_ITEMS = [
   { label: "Dashboard", href: "/dashboard", icon: LayoutDashboard, badge: null },
-  { label: "All Candidates", href: "/candidates", icon: Users, badge: "24" },
-  { label: "Shortlisted", href: "/shortlisted", icon: Star, badge: "4" },
-  { label: "Emailed", href: "/emailed", icon: Mail, badge: "3" },
-  { label: "Interviews", href: "/interviews", icon: CalendarDays, badge: null },
-  { label: "Reports", href: "/reports", icon: BarChart3, badge: null },
+  { label: "All Candidates", href: "/dashboard/candidates", icon: Users, badge: "24" },
+  { label: "Shortlisted", href: "/dashboard/shortlisted", icon: Star, badge: "4" },
+  { label: "Emailed", href: "/dashboard/emailed", icon: Mail, badge: "3" },
+  { label: "Interviews", href: "/dashboard/interviews", icon: CalendarDays, badge: null },
+  { label: "Reports", href: "/dashboard/reports", icon: BarChart3, badge: null },
 ];
 
 const PROFILE_ACTIONS = [

@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { useRouter } from "next/navigation"; // Added for redirection
 import {
   Card,
   CardHeader,
@@ -15,9 +16,11 @@ import {
 import { Loader2, LockKeyhole } from "lucide-react";
 import Link from "next/link";
 import SocialMediaAuth from "./SocialMediaAuth";
+import { toast } from "sonner";
 
 function LoginFormUI() {
-  const { actions } = useAuth(); // Using actions from context
+  const { actions } = useAuth();
+  const router = useRouter(); // Initialize router
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
@@ -26,20 +29,28 @@ function LoginFormUI() {
     e.preventDefault();
     setLoading(true);
 
-    // Using actions.login from context instead of direct authClient call
     await actions.login(
       {
         email,
         password,
-        callbackURL: "/dashboard",
       },
       {
         onRequest: () => setLoading(true),
         onError: (ctx) => {
           setLoading(false);
-          alert(ctx.error.message);
+          if (ctx.error.status === 403) {
+            toast.warning("Please verify your email address before logging in.");
+          } else {
+            toast.error(ctx.error.message || "Login failed");
+          }
         },
-        onSuccess: () => setLoading(false),
+        onSuccess: async () => {
+          setLoading(false);
+          // 1. Refresh the router to update server components
+          router.refresh();
+          // 2. Redirect to dashboard
+          router.push("/dashboard");
+        },
       },
     );
   };
@@ -73,19 +84,24 @@ function LoginFormUI() {
               id="email"
               type="email"
               placeholder="name@example.com"
+              value={email}
               className="h-11 bg-transparent border-gray-300 placeholder-gray-500/50 focus-visible:ring-blue-500"
               onChange={(e) => setEmail(e.target.value)}
               required
             />
           </div>
           <div className="grid gap-2">
-            <label htmlFor="password" className="form-label text-xl font-normal">
+            <label
+              htmlFor="password"
+              className="form-label text-xl font-normal"
+            >
               Password
             </label>
             <Input
               id="password"
               type="password"
-              placeholder="Create a password"
+              placeholder="••••••••"
+              value={password}
               className="h-11 bg-transparent border-gray-300 placeholder-gray-500/50 focus-visible:ring-blue-500"
               onChange={(e) => setPassword(e.target.value)}
               required
@@ -93,20 +109,19 @@ function LoginFormUI() {
           </div>
 
           <Button
-            className="w-full h-11 text-base bg-blue-600 hover:bg-blue-500 text-gray-100 rounded-full font-medium transition-all hover:shadow-lg active:scale-[0.85]"
+            className="w-full h-11 text-base bg-blue-600 hover:bg-blue-500 text-gray-100 rounded-full font-medium transition-all hover:shadow-lg active:scale-[0.98]"
             type="submit"
             disabled={loading}
           >
             {loading ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Signing account...
+                Signing in...
               </>
             ) : (
               "Sign In"
             )}
           </Button>
-          {/*Social-media Auth*/}
           <SocialMediaAuth />
         </CardContent>
 
