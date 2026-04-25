@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { motion, AnimatePresence, Variants } from "framer-motion";
@@ -17,23 +17,25 @@ import {
   Zap,
   Settings,
   LogOut,
+  UserPlus,
+  UserMinus,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useSidebar } from "@/context/sidebar-context";
 import { useAuth } from "@/context/AuthContext";
 
-
 const NAV_ITEMS = [
   { label: "Dashboard", href: "/dashboard", icon: LayoutDashboard, badge: null },
-  { label: "All Candidates", href: "/dashboard/candidates", icon: Users, badge: "24" },
-  { label: "Shortlisted", href: "/dashboard/shortlisted", icon: Star, badge: "4" },
-  { label: "Emailed", href: "/dashboard/emailed", icon: Mail, badge: "3" },
-  { label: "Interviews", href: "/dashboard/interviews", icon: CalendarDays, badge: null },
+  { label: "All Candidates", href: "/dashboard/candidates", icon: Users, badge: null },
+  { label: "Screened", href: "/dashboard/screened", icon: UserPlus, badge: null },
+  { label: "Shortlisted", href: "/dashboard/shortlisted", icon: Star, badge: null },
+  { label: "Rejected", href: "/dashboard/rejected", icon: UserMinus, badge: null },
+  { label: "Emailed", href: "/dashboard/emailed", icon: Mail, badge: null },
   { label: "Reports", href: "/dashboard/reports", icon: BarChart3, badge: null },
 ];
 
 const PROFILE_ACTIONS = [
-  { label: "Settings", icon: Settings, href: "/settings" },
+  { label: "Settings", icon: Settings, href: "/dashboard/settings" },
   { label: "Log Out", icon: LogOut, action: "logout" },
 ];
 
@@ -135,27 +137,6 @@ export function Sidebar() {
             })}
           </ul>
         </nav>
-
-        {/* Upgrade Card */}
-        <AnimatePresence mode="wait">
-          {!isCollapsed && (
-            <motion.div
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.9 }}
-              className="mx-4 relative overflow-hidden bg-linear-to-br from-indigo-600 to-violet-600 rounded-2xl p-4 text-white mb-4 shadow-[0_8px_24px_rgba(99,102,241,0.28)]"
-            >
-              <div className="flex items-center gap-2 mb-2">
-                <Zap size={12} className="text-white" strokeWidth={2.5} />
-                <span className="text-[13px] font-bold">Upgrade Plan</span>
-              </div>
-              <p className="text-[11px] text-white/70 leading-tight mb-3">AI screening for unlimited roles</p>
-              <button className="w-full bg-white text-indigo-600 text-[11px] font-bold py-1.5 rounded-lg hover:bg-opacity-90 transition-opacity">
-                Go Pro
-              </button>
-            </motion.div>
-          )}
-        </AnimatePresence>
 
         <div className="h-px bg-gray-100 my-4 mx-4" />
 

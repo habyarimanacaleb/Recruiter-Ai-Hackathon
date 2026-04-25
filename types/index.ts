@@ -13,7 +13,7 @@ export type Candidate = {
   skillsMatch: number;
   experience: string;
   education: string;
-  status: 'Rejected' | 'Emailed' | 'Interview' | 'Shortlisted' | 'Screened';
+  status: 'Rejected' | 'Emailed' | 'Interviewed' | 'Shortlisted' | 'Screened';
 };
 export interface UploadedFile {
   id: string;
